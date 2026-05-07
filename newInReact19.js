@@ -58,4 +58,113 @@ async function submit(formData) {
 
 react here build loading , error and reset
 ------------------------------------
+
+before react 19 :
+ex: when user login , register, update profile ...etc
+you send req to server and in the same time you need to handle loading , errors , success 
+
+before : you need to create every thing manaully :
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState(null)
+
+and when do submitting =>> setLoading(true)
+  then =>> setLoading(false)
+
+if there an error => setError(err)
+
+in react 19 : we get Actions 
+instead of managing loading/errors => react will help you 
+
+instead of : const [loading, setLoading] = useState(false)
+we can do : const [isPending, startTransition] = useTransition()
+
+
+what is startTransition ? 
+  this say to react :there is an async process running . manage loading and others things 
+
+** in the past : you are responsible for loading, errors , reset , ui freeze 
+now react do loading state , ui smooth , async handling
+
+ex: user update user info => react do `isPending = true` then btn disabled 
+<button disabled={isPending}>
+when requesting finished => isPending = false then btn opened 
+
+ex code:
+// Before Actions
+function UpdateName({}) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsPending(true);
+    const error = await updateName(name);
+    setIsPending(false);
+    if (error) {
+      setError(error);
+      return;
+    }
+    redirect("/path");
+  };
+
+  return (
+    <div>
+      <input value={name} onChange={(event) => setName(event.target.value)} />
+      <button onClick={handleSubmit} disabled={isPending}>
+        Update
+      </button>
+      {error && <p>{error}</p>}
+    </div>
+  );
+}
+
+// Using pending state from Actions
+function UpdateName({}) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = () => {
+    startTransition(async () => {
+      const error = await updateName(name);
+      if (error) {
+        setError(error);
+        return;
+      }
+      redirect("/path");
+    })
+  };
+
+  return (
+    <div>
+      <input value={name} onChange={(event) => setName(event.target.value)} />
+      <button onClick={handleSubmit} disabled={isPending}>
+        Update
+      </button>
+      {error && <p>{error}</p>}
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   
